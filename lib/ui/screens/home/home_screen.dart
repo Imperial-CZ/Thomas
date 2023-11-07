@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thomas/ui/screens/audio/audio_screen.dart';
+import 'package:thomas/ui/screens/audio/main_screen.dart';
 import 'package:thomas/ui/screens/home/cubit/home_cubit.dart';
 import 'package:thomas/ui/screens/home/cubit/home_state.dart';
 
@@ -41,9 +41,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => AudioScreen()),
+                      MaterialPageRoute(builder: (context) => MainScreen()),
                     );
                   },
                   child: Container(
