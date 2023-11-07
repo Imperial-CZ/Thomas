@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:thomas/ui/screens/audio/cubit/main_cubit.dart';
 import 'package:thomas/ui/screens/audio/cubit/main_state.dart';
@@ -8,17 +12,21 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AudioPlayer player = AudioPlayer();
+    bool _isPlaying = false;
+    bool _isPaused = false;
+    Duration? _position;
+
     return BlocProvider(
-      create: (context) => MainCubit()..testEmit(),
+      create: (context) => MainCubit()..loadAudioFiles(),
       child: BlocBuilder<MainCubit, MainState>(
         builder: (context, state) {
-          print("REBUILD : " + state.toString());
           if (state is MainInitial) {
-            print("EMIT");
-            cubit.testEmit();
+            BlocProvider.of<MainCubit>(context).loadAudioFiles();
           }
-          if (state is MainAudioLoaded) {
-            print("TEST");
+
+          if (state.player != null) {
+            player = state.player!;
           }
 
           return Scaffold(
@@ -75,7 +83,7 @@ class MainScreen extends StatelessWidget {
                               left: MediaQuery.of(context).size.width * 4 / 100,
                             ),
                             child: Text(
-                              "Je suis là pour t'accompagner tout au long de ta visite et te fournir des fun-fact, des détails ... bref des informations supplémentaire pour mieux comprendre les oeuvres que tu regardes !",
+                              "Je suis là pour t'accompagner tout au long de ta visite et te fournir des fun-fact, des détails ... bref des informations supplémentaires pour mieux comprendre les oeuvres que tu regardes !",
                               style: TextStyle(
                                 color: Color(0xff1d4b4d),
                               ),
@@ -155,7 +163,10 @@ class MainScreen extends StatelessWidget {
                                               MaterialTapTargetSize.shrinkWrap,
                                         ),
                                         onPressed: () {
-                                          BlocProvider.of<MainCubit>(context);
+                                          if (state is! MainAudioLoaded) {
+                                            BlocProvider.of<MainCubit>(context)
+                                                .loadAudioFiles();
+                                          }
                                         },
                                         child: Text(
                                           "Audios",
@@ -226,12 +237,10 @@ class MainScreen extends StatelessWidget {
                                               MaterialTapTargetSize.shrinkWrap,
                                         ),
                                         onPressed: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MainScreen()),
-                                          );
+                                          if (state is! MainVideoLoaded) {
+                                            BlocProvider.of<MainCubit>(context)
+                                                .emit(MainVideoLoaded());
+                                          }
                                         },
                                         child: Text(
                                           "Vidéos",
@@ -251,7 +260,7 @@ class MainScreen extends StatelessWidget {
                                     padding: EdgeInsets.all(0),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: state is MainTexteLoaded
+                                        color: state is MainTextLoaded
                                             ? Color(0xffaa7338)
                                             : Colors.transparent,
                                         borderRadius: BorderRadius.only(
@@ -303,12 +312,10 @@ class MainScreen extends StatelessWidget {
                                               MaterialTapTargetSize.shrinkWrap,
                                         ),
                                         onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    MainScreen()),
-                                          );
+                                          if (state is! MainTextLoaded) {
+                                            BlocProvider.of<MainCubit>(context)
+                                                .emit(MainTextLoaded());
+                                          }
                                         },
                                         child: Text(
                                           "Textes",
@@ -326,10 +333,76 @@ class MainScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        ListView.builder(
-                          itemCount: state.listViewContent.length,
-                          itemBuilder: (context, index) {},
-                        )
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: _isPlaying
+                                  ? null
+                                  : () async {
+                                      final position = _position;
+                                      if (position != null &&
+                                          position.inMilliseconds > 0) {
+                                        await player.seek(position);
+                                      }
+                                      await player.resume();
+                                      _isPlaying = true;
+                                      _isPaused = false;
+                                      BlocProvider.of<MainCubit>(context)
+                                          .emit(MainAudioChangePlayerState());
+                                    },
+                              iconSize: 48.0,
+                              icon: const Icon(Icons.play_arrow),
+                              color: Colors.blue,
+                            ),
+                            IconButton(
+                              onPressed: _isPlaying
+                                  ? () async {
+                                      await player.pause();
+                                      _isPlaying = false;
+                                      _isPaused = true;
+                                      BlocProvider.of<MainCubit>(context)
+                                          .emit(MainAudioChangePlayerState());
+                                    }
+                                  : null,
+                              iconSize: 48.0,
+                              icon: const Icon(Icons.pause),
+                              color: Colors.blue,
+                            ),
+                            IconButton(
+                              onPressed: _isPlaying || _isPaused
+                                  ? () async {
+                                      await player.stop();
+                                      _position = Duration.zero;
+                                      _isPlaying = false;
+                                      _isPaused = false;
+                                      BlocProvider.of<MainCubit>(context)
+                                          .emit(MainAudioChangePlayerState());
+                                    }
+                                  : null,
+                              iconSize: 48.0,
+                              icon: const Icon(Icons.stop),
+                              color: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await cubit.changeAudio();
+                          },
+                          child: Text("TEST"),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await player.stop();
+                          },
+                          child: Text("TEST"),
+                        ),
+                        // ListView.builder(
+                        //   itemCount: state.listViewContent.length,
+                        //   itemBuilder: (context, index) {},
+                        // )
                       ],
                     ),
                   ),
