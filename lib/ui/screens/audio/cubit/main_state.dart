@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 abstract class MainState {
   AudioPlayer? player;
-  MainState({this.player = null});
+  List<String> audioFileName;
+  MainState({this.player = null, this.audioFileName = const []});
 }
 
 class MainInitial extends MainState {
@@ -11,10 +12,14 @@ class MainInitial extends MainState {
 }
 
 class MainAudioLoaded extends MainState {
-  MainAudioLoaded({required super.player});
+  MainAudioLoaded({required super.player, required super.audioFileName});
 }
 
-class MainAudioChangePlayerState extends MainState {
+class MainAudioChangeSource extends MainState {
+  MainAudioChangeSource({required super.player});
+}
+
+class MainAudioChangePlayerState extends MainState{
   MainAudioChangePlayerState();
 }
 
