@@ -4,342 +4,124 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:thomas/ui/component/game_manager.dart';
+import 'package:thomas/ui/component/header.dart';
+import 'package:thomas/ui/component/nav_button.dart';
 import 'package:thomas/ui/screens/audio/cubit/main_cubit.dart';
 import 'package:thomas/ui/screens/audio/cubit/main_state.dart';
+import 'package:thomas/ui/screens/test/video_screen.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
 
 class MainScreen extends StatelessWidget {
   final cubit = MainCubit();
   List<String> audioList = [];
+  RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| )+");
 
   @override
   Widget build(BuildContext context) {
     AudioPlayer player = AudioPlayer();
+    GameManager gm = GameManager(
+        cubit: cubit,
+        player: player,
+        screenWidth: MediaQuery.of(context).size.width,
+        screenHeight: MediaQuery.of(context).size.height);
+    ScrollController scrollController = ScrollController();
     bool _isPlaying = false;
     bool _isPaused = false;
     bool _isAudioInPlayer = false;
     Duration? _position;
+    int idAudioInPlayer = 0;
 
     return BlocBuilder<MainCubit, MainState>(
       bloc: cubit,
       builder: (context, state) {
         if (state is MainInitial) {
-          cubit.loadAudioFiles();
+          cubit.init();
+        }
+
+        if (state is AudioListFileNameChange) {
+          audioList = state.audioFileName;
         }
 
         if (state is MainAudioLoaded) {
           print("CHANGING PLAYER ... MAINLOAD");
           player = state.player!;
-          audioList = state.audioFileName;
+          gm.audioChange(player);
           _isAudioInPlayer = true;
         }
 
         if (state is MainAudioChangeSource) {
           print("CHANGING PLAYER ...");
           player = state.player!;
+          gm.audioChange(player);
           _isAudioInPlayer = true;
+          idAudioInPlayer = state.audioSelected;
         }
 
         return Scaffold(
-          backgroundColor:
-              state is MainAudioChangeSource ? Color(0xffece1cd) : Colors.red,
+          backgroundColor: Color(0xffece1cd),
           body: SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 3 / 100,
-                    left: MediaQuery.of(context).size.width * 10 / 100,
-                  ),
-                  child: Text(
-                    "THOMAS",
-                    style: TextStyle(
-                      color: Color(0xff1d4b4d),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 48,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: MediaQuery.of(context).size.width * 18 / 100,
-                  ),
-                  child: Text(
-                    "The history of minorities in America",
-                    style: TextStyle(
-                      color: Color(0xff1d4b4d),
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 4 / 100,
-                    left: MediaQuery.of(context).size.width * 2 / 100,
-                    right: MediaQuery.of(context).size.width * 2 / 100,
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'lib/ui/component/images/logo_without_title.png',
-                        scale: 2,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width * 4 / 100,
-                          ),
-                          child: Text(
-                            "Je suis là pour t'accompagner tout au long de ta visite et te fournir des fun-fact, des détails ... bref des informations supplémentaires pour mieux comprendre les oeuvres que tu regardes !",
-                            style: TextStyle(
-                              color: Color(0xff1d4b4d),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  color: Colors.transparent,
+                Header(),
+                Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
+                      Container(
                         padding: EdgeInsets.only(
                             top: MediaQuery.of(context).size.height * 3 / 100),
-                        child: Container(
-                          color: Colors.transparent,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Ink(
-                                  color: Color(0xff583f2d),
-                                  padding: EdgeInsets.all(0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: state is MainAudioLoaded
-                                          ? Color(0xffaa7338)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(20),
-                                        bottomRight: Radius.circular(20),
-                                      ),
-                                    ),
-                                    child: TextButton(
-                                      style: ButtonStyle(
-                                        overlayColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        padding: MaterialStateProperty
-                                            .resolveWith<EdgeInsetsGeometry>(
-                                          (Set<MaterialState> states) {
-                                            return EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                              bottom: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                            );
-                                          },
-                                        ),
-                                        backgroundColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        side: MaterialStateProperty.resolveWith<
-                                            BorderSide>(
-                                          (Set<MaterialState> states) {
-                                            return BorderSide(
-                                              width: 0,
-                                              color: Colors.transparent,
-                                            );
-                                          },
-                                        ),
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      onPressed: () {
-                                        if (state is! MainAudioLoaded) {
-                                          cubit.loadAudioFiles();
-                                        }
-                                      },
-                                      child: Text(
-                                        "Audios",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                        color: Colors.transparent,
+                        child: Row(
+                          children: [
+                            NavButton(
+                              text: "Audios",
+                              buttonColor: Color(0xffaa7338),
+                              onClickFunction: () {},
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
                               ),
-                              Expanded(
-                                child: Ink(
-                                  color: Color(0xff583f2d),
-                                  padding: EdgeInsets.all(0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: state is MainVideoLoaded
-                                          ? Color(0xffaa7338)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(20),
-                                      ),
-                                    ),
-                                    child: TextButton(
-                                      style: ButtonStyle(
-                                        overlayColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        padding: MaterialStateProperty
-                                            .resolveWith<EdgeInsetsGeometry>(
-                                          (Set<MaterialState> states) {
-                                            return EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                              bottom: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                            );
-                                          },
-                                        ),
-                                        backgroundColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        side: MaterialStateProperty.resolveWith<
-                                            BorderSide>(
-                                          (Set<MaterialState> states) {
-                                            return BorderSide(
-                                              width: 0,
-                                              color: Colors.transparent,
-                                            );
-                                          },
-                                        ),
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      onPressed: () {
-                                        if (state is! MainVideoLoaded) {
-                                          BlocProvider.of<MainCubit>(context)
-                                              .emit(MainVideoLoaded());
-                                        }
+                            ),
+                            NavButton(
+                              text: "Vidéos",
+                              buttonColor: Color(0xff583f2d),
+                              onClickFunction: () {
+                                gm.detach();
+                                player.dispose();
+                                Navigator.pushReplacement(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          VideoScreen(),
+                                      transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) {
+                                        return child;
                                       },
-                                      child: Text(
-                                        "Vidéos",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Ink(
-                                  color: Color(0xff583f2d),
-                                  padding: EdgeInsets.all(0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: state is MainTextLoaded
-                                          ? Color(0xffaa7338)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        bottomLeft: Radius.circular(20),
-                                      ),
-                                    ),
-                                    child: TextButton(
-                                      style: ButtonStyle(
-                                        overlayColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        padding: MaterialStateProperty
-                                            .resolveWith<EdgeInsetsGeometry>(
-                                          (Set<MaterialState> states) {
-                                            return EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                              bottom: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  1 /
-                                                  100,
-                                            );
-                                          },
-                                        ),
-                                        backgroundColor: MaterialStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<MaterialState> states) {
-                                            return Colors.transparent;
-                                          },
-                                        ),
-                                        side: MaterialStateProperty.resolveWith<
-                                            BorderSide>(
-                                          (Set<MaterialState> states) {
-                                            return BorderSide(
-                                              width: 0,
-                                              color: Colors.transparent,
-                                            );
-                                          },
-                                        ),
-                                        tapTargetSize:
-                                            MaterialTapTargetSize.shrinkWrap,
-                                      ),
-                                      onPressed: () {
-                                        if (state is! MainTextLoaded) {
-                                          BlocProvider.of<MainCubit>(context)
-                                              .emit(MainTextLoaded());
-                                        }
-                                      },
-                                      child: Text(
-                                        "Textes",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                                    ));
+                              },
+                              borderRadius: null,
+                            ),
+                            NavButton(
+                              text: "Audios",
+                              buttonColor: Color(0xff583f2d),
+                              onClickFunction: () {},
+                              borderRadius: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 10 / 100,
+                        child: GameWidget(
+                          game: gm,
                         ),
                       ),
                       Row(
@@ -362,7 +144,8 @@ class MainScreen extends StatelessWidget {
                                   },
                             iconSize: 48.0,
                             icon: const Icon(Icons.play_arrow),
-                            color: Color(0xff1d4b4d),
+                            color: Color(0xffaa7338),
+                            disabledColor: Color(0xff583f2d),
                           ),
                           IconButton(
                             onPressed: _isPlaying
@@ -375,7 +158,8 @@ class MainScreen extends StatelessWidget {
                                 : null,
                             iconSize: 48.0,
                             icon: const Icon(Icons.pause),
-                            color: Color(0xff1d4b4d),
+                            color: Color(0xffaa7338),
+                            disabledColor: Color.fromARGB(255, 62, 45, 32),
                           ),
                           IconButton(
                             onPressed: _isPlaying || _isPaused
@@ -386,23 +170,69 @@ class MainScreen extends StatelessWidget {
                                     _isPaused = false;
                                     _isAudioInPlayer = false;
                                     cubit.emit(MainAudioChangePlayerState());
+                                    cubit.changeAudio(idAudioInPlayer);
                                   }
                                 : null,
                             iconSize: 48.0,
                             icon: const Icon(Icons.stop),
-                            color: Color(0xff1d4b4d),
+                            color: Color(0xffaa7338),
+                            disabledColor: Color.fromARGB(255, 62, 45, 32),
                           ),
                         ],
                       ),
-                      ListView.builder(
-                        itemCount: audioList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            width:
-                                MediaQuery.of(context).size.height * 10 / 100,
-                            child: Text("TEMP"),
-                          );
-                        },
+                      Expanded(
+                        child: ListView(
+                          shrinkWrap: true,
+                          controller: scrollController,
+                          children: [
+                            for (int i = 0; i < audioList.length; i++)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height *
+                                      1 /
+                                      100,
+                                  bottom: MediaQuery.of(context).size.height *
+                                      1 /
+                                      100,
+                                  right: MediaQuery.of(context).size.width *
+                                      4 /
+                                      100,
+                                  left: MediaQuery.of(context).size.width *
+                                      4 /
+                                      100,
+                                ),
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width *
+                                      10 /
+                                      100,
+                                  decoration: BoxDecoration(
+                                    color: i == idAudioInPlayer
+                                        ? Color(0xffaa7338)
+                                        : Color(0xff583f2d),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  child: TextButton(
+                                    child: Text(
+                                        fileRegex.stringMatch(audioList[i]) ??
+                                            "ERREUR LECTURE TITRE"),
+                                    onPressed: () async {
+                                      if (_isPlaying || _isPaused) {
+                                        await player.stop();
+                                        _position = Duration.zero;
+                                        _isPlaying = false;
+                                        _isPaused = false;
+                                        _isAudioInPlayer = false;
+                                        cubit
+                                            .emit(MainAudioChangePlayerState());
+                                      }
+                                      cubit.changeAudio(i);
+                                    },
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

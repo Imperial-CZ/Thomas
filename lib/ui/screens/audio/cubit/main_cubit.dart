@@ -9,9 +9,21 @@ import 'package:thomas/ui/screens/audio/cubit/main_state.dart';
 class MainCubit extends Cubit<MainState> {
   MainCubit() : super(MainInitial());
 
+  List<String> fileNames = [];
+
+  Future<void> init() async {
+    await loadAudioFiles();
+
+    AudioPlayer player = AudioPlayer();
+    AssetSource newSource = AssetSource(fileNames[0]);
+    await player.setSource(newSource);
+
+    emit(MainAudioLoaded(player: player, audioSelected: 0));
+  }
+
   Future<void> loadAudioFiles() async {
-    List<String> fileNames = [];
-    
+    List<String> tempFileNames = [];
+
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
     // >> To get paths you need these 2 lines
@@ -21,39 +33,31 @@ class MainCubit extends Cubit<MainState> {
         .where((String key) => key.contains('.mp3'))
         .toList();
 
-    RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9])+\.mp3");
-    for(String element in filePath){
+    RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| )+\.mp3");
+    for (String element in filePath) {
       String? regexRes = fileRegex.stringMatch(element);
-      if(regexRes != null){
-        fileNames.add(fileRegex.stringMatch(element)!);
+      if (regexRes != null) {
+        tempFileNames.add(regexRes);
       }
     }
 
+    fileNames = tempFileNames;
+
+    emit(AudioListFileNameChange(audioFileName: fileNames));
+  }
+
+  Future<void> changeAudio(int audioSelected) async {
+    await loadAudioFiles();
+
     AudioPlayer player = AudioPlayer();
-    AssetSource newSource = AssetSource(fileNames[0]);
+    AssetSource newSource = AssetSource(fileNames[audioSelected]);
     await player.setSource(newSource);
 
-    emit(MainAudioLoaded(player: player, audioFileName: fileNames));
+    emit(MainAudioChangeSource(player: player, audioSelected: audioSelected));
   }
 
-  Future<void> changeAudio() async {
-    AudioPlayer player = AudioPlayer();
-    AssetSource newSource = AssetSource("test2.mp3");
-    await player.setSource(newSource);
-
-    emit(MainAudioChangeSource(player: player));
-  }
-
-  void loadVideoFiles() {
-    List<String> filesNames;
-
-    emit(MainVideoLoaded());
-  }
-
-  void loadTextFiles() {
-    List<String> filesNames;
-
-    emit(MainTextLoaded());
+  Future<Duration?> getCurrentAudioTime(AudioPlayer inputAudioPlayer) async {
+    return await inputAudioPlayer.getCurrentPosition();
   }
 
   @override
