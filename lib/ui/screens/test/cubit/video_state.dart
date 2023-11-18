@@ -1,14 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 abstract class VideoState {
-  AudioPlayer? player;
-  List<String> audioFileName;
-  int audioSelected;
+  VideoPlayerController? playerController;
+  List<String> videoFileName;
+  int videoSelected;
   VideoState(
-      {this.player = null,
-      this.audioFileName = const [],
-      this.audioSelected = -1});
+      {this.playerController = null,
+      this.videoFileName = const [],
+      this.videoSelected = -1});
 }
 
 class VideoInitial extends VideoState {
@@ -17,16 +18,16 @@ class VideoInitial extends VideoState {
 
 class VideoLoaded extends VideoState {
   VideoLoaded({
-    required super.player,
-    required super.audioFileName,
-    required super.audioSelected,
+    required super.playerController,
+    required super.videoFileName,
+    required super.videoSelected,
   });
 }
 
 class VideoChangeSource extends VideoState {
   VideoChangeSource({
-    required super.player,
-    required super.audioSelected,
+    required super.playerController,
+    required super.videoSelected,
   });
 }
 

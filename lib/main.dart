@@ -6,6 +6,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   Flame.device.fullScreen();
+  Flame.device.setPortraitUpOnly();
 
   runApp(const MainApp());
 }
