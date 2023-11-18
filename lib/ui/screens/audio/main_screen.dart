@@ -110,18 +110,12 @@ class MainScreen extends StatelessWidget {
                               borderRadius: null,
                             ),
                             NavButton(
-                              text: "Audios",
+                              text: "Textes",
                               buttonColor: Color(0xff583f2d),
                               onClickFunction: () {},
                               borderRadius: null,
                             ),
                           ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 10 / 100,
-                        child: GameWidget(
-                          game: gm,
                         ),
                       ),
                       Row(
@@ -180,6 +174,16 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      Container(
+                        height: MediaQuery.of(context).size.height * 2 / 100,
+                        width: MediaQuery.of(context).size.width * 90 / 100,
+                        margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).size.height * 3 / 100,
+                        ),
+                        child: GameWidget(
+                          game: gm,
+                        ),
+                      ),
                       Expanded(
                         child: ListView(
                           shrinkWrap: true,
@@ -215,7 +219,11 @@ class MainScreen extends StatelessWidget {
                                   child: TextButton(
                                     child: Text(
                                         fileRegex.stringMatch(audioList[i]) ??
-                                            "ERREUR LECTURE TITRE"),
+                                            "ERREUR LECTURE TITRE",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                        )),
                                     onPressed: () async {
                                       if (_isPlaying || _isPaused) {
                                         await player.stop();
