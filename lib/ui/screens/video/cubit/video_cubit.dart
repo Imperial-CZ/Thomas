@@ -2,15 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flame/flame.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thomas/ui/screens/test/cubit/video_state.dart';
+import 'package:thomas/ui/screens/video/cubit/video_state.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoCubit extends Cubit<VideoState> {
   VideoCubit() : super(VideoInitial());
 
   List<String> fileNames = [];
+  bool isLandscaped = false;
 
   Future<void> loadVideoFiles(String? videoName, Duration? currentVideoTimer,
       int? currentVideoId) async {
@@ -49,12 +51,22 @@ class VideoCubit extends Cubit<VideoState> {
         videoSelected: 0));
   }
 
-  Future<void> changeAudio(int videoSelected) async {
-    VideoPlayerController _controller =
-        VideoPlayerController.asset(fileNames[videoSelected])..initialize();
+  Future<void> changeVideo(int videoSelected) async {
+    print("fileNames[videoSelected] : " + fileNames[videoSelected]);
+    VideoPlayerController controller =
+        VideoPlayerController.asset("assets/" + fileNames[videoSelected]);
+    await controller.initialize();
 
     emit(VideoChangeSource(
-        playerController: _controller, videoSelected: videoSelected));
+        playerController: controller, videoSelected: videoSelected));
+  }
+
+  void changeScreenOrientation() {
+    isLandscaped = isLandscaped ? false : true;
+    isLandscaped
+        ? Flame.device.setOrientation(DeviceOrientation.landscapeLeft)
+        : Flame.device.setOrientation(DeviceOrientation.portraitUp);
+    emit(VideoUpdateScreenOrientationState(isLandscaped: isLandscaped));
   }
 
   @override

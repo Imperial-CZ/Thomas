@@ -1,38 +1,38 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
-abstract class MainState {
+abstract class AudioState {
   AudioPlayer? player;
   List<String> audioFileName;
   int audioSelected;
-  MainState(
+  AudioState(
       {this.player = null,
       this.audioFileName = const [],
       this.audioSelected = -1});
 }
 
-class MainInitial extends MainState {
-  MainInitial();
+class AudioInitial extends AudioState {
+  AudioInitial();
 }
 
-class MainAudioLoaded extends MainState {
-  MainAudioLoaded({
+class AudioLoaded extends AudioState {
+  AudioLoaded({
     required super.player,
     required super.audioSelected,
   });
 }
 
-class MainAudioChangeSource extends MainState {
-  MainAudioChangeSource({
+class AudioChangeSource extends AudioState {
+  AudioChangeSource({
     required super.player,
     required super.audioSelected,
   });
 }
 
-class AudioListFileNameChange extends MainState {
+class AudioListFileNameChange extends AudioState {
   AudioListFileNameChange({required super.audioFileName});
 }
 
-class MainAudioChangePlayerState extends MainState {
-  MainAudioChangePlayerState();
+class AudioChangePlayerState extends AudioState {
+  AudioChangePlayerState();
 }

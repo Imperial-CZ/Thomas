@@ -7,16 +7,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:thomas/ui/component/game_manager.dart';
 import 'package:thomas/ui/component/header.dart';
 import 'package:thomas/ui/component/nav_button.dart';
-import 'package:thomas/ui/screens/audio/cubit/main_cubit.dart';
-import 'package:thomas/ui/screens/audio/cubit/main_state.dart';
-import 'package:thomas/ui/screens/test/video_screen.dart';
+import 'package:thomas/ui/screens/audio/cubit/audio_cubit.dart';
+import 'package:thomas/ui/screens/audio/cubit/audio_state.dart';
+import 'package:thomas/ui/screens/video/video_screen.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
-class MainScreen extends StatelessWidget {
-  final cubit = MainCubit();
+class AudioScreen extends StatelessWidget {
+  final cubit = AudioCubit();
   List<String> audioList = [];
-  RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| )+");
+  RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| |')+");
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +33,10 @@ class MainScreen extends StatelessWidget {
     Duration? _position;
     int idAudioInPlayer = 0;
 
-    return BlocBuilder<MainCubit, MainState>(
+    return BlocBuilder<AudioCubit, AudioState>(
       bloc: cubit,
       builder: (context, state) {
-        if (state is MainInitial) {
+        if (state is AudioInitial) {
           cubit.init();
         }
 
@@ -44,14 +44,14 @@ class MainScreen extends StatelessWidget {
           audioList = state.audioFileName;
         }
 
-        if (state is MainAudioLoaded) {
+        if (state is AudioLoaded) {
           print("CHANGING PLAYER ... MAINLOAD");
           player = state.player!;
           gm.audioChange(player);
           _isAudioInPlayer = true;
         }
 
-        if (state is MainAudioChangeSource) {
+        if (state is AudioChangeSource) {
           print("CHANGING PLAYER ...");
           player = state.player!;
           gm.audioChange(player);
@@ -134,7 +134,7 @@ class MainScreen extends StatelessWidget {
                                     await player.resume();
                                     _isPlaying = true;
                                     _isPaused = false;
-                                    cubit.emit(MainAudioChangePlayerState());
+                                    cubit.emit(AudioChangePlayerState());
                                   },
                             iconSize: 48.0,
                             icon: const Icon(Icons.play_arrow),
@@ -147,7 +147,7 @@ class MainScreen extends StatelessWidget {
                                     await player.pause();
                                     _isPlaying = false;
                                     _isPaused = true;
-                                    cubit.emit(MainAudioChangePlayerState());
+                                    cubit.emit(AudioChangePlayerState());
                                   }
                                 : null,
                             iconSize: 48.0,
@@ -163,7 +163,7 @@ class MainScreen extends StatelessWidget {
                                     _isPlaying = false;
                                     _isPaused = false;
                                     _isAudioInPlayer = false;
-                                    cubit.emit(MainAudioChangePlayerState());
+                                    cubit.emit(AudioChangePlayerState());
                                     cubit.changeAudio(idAudioInPlayer);
                                   }
                                 : null,
@@ -216,23 +216,35 @@ class MainScreen extends StatelessWidget {
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10)),
                                   ),
-                                  child: TextButton(
-                                    child: Text(
-                                        fileRegex.stringMatch(audioList[i]) ??
-                                            "ERREUR LECTURE TITRE",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                        )),
-                                    onPressed: () async {
+                                  child: ListTile(
+                                    leading: Image.asset(
+                                      "assets/chien.png",
+                                      height: 50,
+                                      width: 50,
+                                    ),
+                                    title: Text(
+                                      fileRegex.stringMatch(audioList[i]) ??
+                                          "ERREUR LECTURE TITRE",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      "Autor : Imagine Dragon's",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    onTap: () async {
                                       if (_isPlaying || _isPaused) {
                                         await player.stop();
                                         _position = Duration.zero;
                                         _isPlaying = false;
                                         _isPaused = false;
                                         _isAudioInPlayer = false;
-                                        cubit
-                                            .emit(MainAudioChangePlayerState());
+                                        cubit.emit(AudioChangePlayerState());
                                       }
                                       cubit.changeAudio(i);
                                     },

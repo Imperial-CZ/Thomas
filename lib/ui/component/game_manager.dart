@@ -6,10 +6,10 @@ import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:thomas/ui/screens/audio/cubit/main_cubit.dart';
+import 'package:thomas/ui/screens/audio/cubit/audio_cubit.dart';
 
 class GameManager extends FlameGame {
-  MainCubit cubit;
+  AudioCubit cubit;
   AudioPlayer player;
   int totalAudioDuration = 0;
   String totalAudioDurationString = "0";

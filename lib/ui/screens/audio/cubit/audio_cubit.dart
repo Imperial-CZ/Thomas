@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thomas/ui/screens/audio/cubit/main_state.dart';
+import 'package:thomas/ui/screens/audio/cubit/audio_state.dart';
 
-class MainCubit extends Cubit<MainState> {
-  MainCubit() : super(MainInitial());
+class AudioCubit extends Cubit<AudioState> {
+  AudioCubit() : super(AudioInitial());
 
   List<String> fileNames = [];
 
@@ -18,7 +18,7 @@ class MainCubit extends Cubit<MainState> {
     AssetSource newSource = AssetSource(fileNames[0]);
     await player.setSource(newSource);
 
-    emit(MainAudioLoaded(player: player, audioSelected: 0));
+    emit(AudioLoaded(player: player, audioSelected: 0));
   }
 
   Future<void> loadAudioFiles() async {
@@ -33,7 +33,7 @@ class MainCubit extends Cubit<MainState> {
         .where((String key) => key.contains('.mp3'))
         .toList();
 
-    RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| )+\.mp3");
+    RegExp fileRegex = RegExp("([a-z]|[A-Z]|[0-9]| |')+\.mp3");
     for (String element in filePath) {
       String? regexRes = fileRegex.stringMatch(element);
       if (regexRes != null) {
@@ -53,7 +53,7 @@ class MainCubit extends Cubit<MainState> {
     AssetSource newSource = AssetSource(fileNames[audioSelected]);
     await player.setSource(newSource);
 
-    emit(MainAudioChangeSource(player: player, audioSelected: audioSelected));
+    emit(AudioChangeSource(player: player, audioSelected: audioSelected));
   }
 
   Future<Duration?> getCurrentAudioTime(AudioPlayer inputAudioPlayer) async {
@@ -61,7 +61,7 @@ class MainCubit extends Cubit<MainState> {
   }
 
   @override
-  void onChange(Change<MainState> change) {
+  void onChange(Change<AudioState> change) {
     // TODO: implement onChange
     super.onChange(change);
     print(change);

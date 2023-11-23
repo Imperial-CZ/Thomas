@@ -1,8 +1,10 @@
+import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:thomas/ui/screens/test/cubit/video_cubit.dart';
-import 'package:thomas/ui/screens/test/cubit/video_state.dart';
-import 'package:thomas/ui/screens/test/video_screen.dart';
+import 'package:thomas/ui/screens/video/cubit/video_cubit.dart';
+import 'package:thomas/ui/screens/video/cubit/video_state.dart';
+import 'package:thomas/ui/screens/video/video_screen.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoOverlay extends StatelessWidget {
@@ -20,7 +22,7 @@ class VideoOverlay extends StatelessWidget {
   ];
 
   final VideoPlayerController controller;
-  final Cubit cubit;
+  final VideoCubit cubit;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +48,7 @@ class VideoOverlay extends StatelessWidget {
         GestureDetector(
           onTap: () {
             controller.value.isPlaying ? controller.pause() : controller.play();
-            if (cubit is VideoCubit) {
-              cubit.emit(VideoChangePlayerState());
-            } else {
-              cubit.emit(VideoLandscapeChangePlayerState());
-            }
+            cubit.emit(VideoChangePlayerState());
           },
         ),
         Align(
@@ -82,6 +80,26 @@ class VideoOverlay extends StatelessWidget {
             ),
           ),
         ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: IconButton(
+            onPressed: () async {
+              cubit.changeScreenOrientation();
+            },
+            icon: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Color(0xffaa7338),
+              ),
+              child: Icon(
+                Icons.fullscreen_exit,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        )
       ],
     );
   }

@@ -6,10 +6,13 @@ abstract class VideoState {
   VideoPlayerController? playerController;
   List<String> videoFileName;
   int videoSelected;
-  VideoState(
-      {this.playerController = null,
-      this.videoFileName = const [],
-      this.videoSelected = -1});
+  bool isLandscaped;
+  VideoState({
+    this.playerController = null,
+    this.videoFileName = const [],
+    this.videoSelected = -1,
+    this.isLandscaped = false,
+  });
 }
 
 class VideoInitial extends VideoState {
@@ -33,4 +36,8 @@ class VideoChangeSource extends VideoState {
 
 class VideoChangePlayerState extends VideoState {
   VideoChangePlayerState();
+}
+
+class VideoUpdateScreenOrientationState extends VideoState {
+  VideoUpdateScreenOrientationState({required super.isLandscaped});
 }
