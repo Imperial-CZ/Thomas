@@ -1,4 +1,4 @@
-## LE PROJET
+## THOMAS
 
 Thomas est une applciation créé par Jules CLOSSON en collaboration avec des étudiants de l'Université de *Nom université* pour un de leur projet tutoré. Thomas est un guide textuel/audio et video pour une exposition de photo sur le multiculturalisme.
 
