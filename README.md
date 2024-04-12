@@ -1,6 +1,6 @@
 ## THOMAS
 
-Thomas est une applciation créé par Jules CLOSSON en collaboration avec des étudiants de l'Université de *Nom université* pour un de leur projet tutoré. Thomas est un guide textuel/audio et video pour une exposition de photo sur le multiculturalisme.
+Thomas est une applciation créé par Jules CLOSSON en collaboration avec des étudiants de l'Université de Poitier pour un de leur projet tutoré. Thomas est un guide textuel/audio et video pour une exposition de photo sur le multiculturalisme.
 
 ## APPLICATION ET TECHNOLOGIES
 
@@ -11,3 +11,7 @@ Langage(s)/SDK : [Flutter](https://flutter.dev/) ([Dart](https://dart.dev/))
 Back : N/A
 
 Temps de Dev Prévu : N/A
+
+## AUTEURS
+
+[Jules CLOSSON](https://github.com/Imperial-CZ)
